@@ -109,8 +109,7 @@ app.get("/normal", async (req, res) => {
 });
 
 
-// incremental reel every 5 minutes
-cron.schedule("*/15 * * * *", async () => {
+cron.schedule("0 7 * * *", async () => {
   try {
 
     console.log("Cron: Checking incremental reels...");
@@ -138,26 +137,39 @@ cron.schedule("*/15 * * * *", async () => {
     console.error("Cron Error posting incremental reel:", err);
 
   }
-});
+} , {timezone : "Asia/Kolkata"});
 
 
-// normal reel every 5 minutes
-cron.schedule("*/30 * * * *", async () => {
+cron.schedule("0 19 * * *", async () => {
 
-  console.log("Running normal reel cron");
+  try {
 
-  const reel = await NormalReel.findOne({
-    where: { posted: false }
-  });
+    console.log("Running normal reel cron");
 
-  if (!reel) return;
+    const reel = await NormalReel.findOne({
+      where: { posted: false },
+      order: [["id", "ASC"]]
+    });
 
-  await postReel(reel.video_url, reel.caption);
+    if (!reel) {
+      console.log("No normal reels left");
+      return;
+    }
 
-  reel.posted = true;
-  await reel.save();
+    await postReel(reel.video_url, reel.caption);
 
-});
+    reel.posted = true;
+    await reel.save();
+
+    console.log(`Posted normal reel ${reel.id}`);
+
+  } catch (err) {
+
+    console.error("Normal reel cron failed:", err);
+
+  }
+
+}, { timezone: "Asia/Kolkata" });
 
 
 // refresh token every 50 days
