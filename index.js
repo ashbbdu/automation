@@ -140,7 +140,8 @@ cron.schedule("0 7 * * *", async () => {
 } , {timezone : "Asia/Kolkata"});
 
 
-cron.schedule("0 19 * * *", async () => {
+// cron.schedule("0 19 * * *", async () => {
+cron.schedule("0 2 * * *", async () => {
 
   try {
 
