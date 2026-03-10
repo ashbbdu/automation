@@ -320,3 +320,37 @@ app.post("/upload-normal", upload.single("video"), async (req, res) => {
 
 });
 
+
+
+app.get("/fetch-last-data", async (req, res) => {
+  try {
+
+    const data = await IncrementalReel.findOne({
+      order: [["createdAt", "DESC"]],
+      raw: true
+    });
+
+    if (!data) {
+      return res.status(404).json({
+        message: "No incremental reels found",
+        data: null
+      });
+    }
+
+    console.log(data, "latest incremental reel");
+
+    return res.status(200).json({
+      message: "Fetched!",
+      data
+    });
+
+  } catch (e) {
+
+    console.error("Error while fetching incremental reel details", e);
+
+    return res.status(500).json({
+      message: "Internal Server Error"
+    });
+
+  }
+});
