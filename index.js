@@ -6,11 +6,19 @@ const cron = require("node-cron");
 const supabase = require("./config/supabase");
 
 const sequelize = require("./config/db");
+const cors = require("cors");
 
 const IncrementalReel = require("./models/IncrementalReel");
 const NormalReel = require("./models/NormalReel");
 
 const Token = require("./models/Token");
+
+app.use(
+  cors({
+    origin: "*", // allow all origins (for testing)
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 
 // IncrementalReel.sync();
 // NormalReel.sync()
@@ -25,6 +33,9 @@ const { PutObjectCommand } = require("@aws-sdk/client-s3");
 const upload = multer({ storage: multer.memoryStorage() });
 
 const app = express();
+
+app.use(cors());
+app.use(express.json());
 const PORT = 4001;
 
 app.use(express.json());
