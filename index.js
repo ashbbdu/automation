@@ -122,7 +122,9 @@ app.get("/normal", async (req, res) => {
 });
 
 
-cron.schedule("0 7 * * *", async () => {
+// cron.schedule("0 7 * * *", async () => {
+  // cron.schedule("0 23 * * *", async () => {
+    cron.schedule("0 17 * * *", async () => {
   try {
 
     console.log("Cron: Checking incremental reels...");
@@ -154,7 +156,8 @@ cron.schedule("0 7 * * *", async () => {
 
 
 // cron.schedule("0 19 * * *", async () => {
-cron.schedule("0 2 * * *", async () => {
+// cron.schedule("0 2 * * *", async () => {
+  cron.schedule("0 1 * * *", async () => {
 
   try {
 
