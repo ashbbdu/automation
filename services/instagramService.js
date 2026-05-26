@@ -1,7 +1,7 @@
 // require("dotenv").config();
 // const axios = require("axios");
 
-// const GRAPH = "https://graph.facebook.com/v19.0";
+// const GRAPH = "https://graph.facebook.com/v25.0";
 
 // let USER_TOKEN = process.env.USER_TOKEN;
 
@@ -132,7 +132,7 @@ require("dotenv").config();
 const axios = require("axios");
 const Token = require("../models/Token");
 
-const GRAPH = "https://graph.facebook.com/v19.0";
+const GRAPH = "https://graph.facebook.com/v25.0";
 
 const PAGE_ID = process.env.PAGE_ID;
 const IG_USER_ID = process.env.IG_USER_ID;
@@ -283,7 +283,9 @@ async function publishReel(pageToken, creationId) {
    Wait For Processing
 ----------------------- */
 
-async function waitForProcessing(pageToken, creationId) {
+async function waitForProcessing(creationId) {
+
+  const userToken = await getUserToken();
 
   let status = "IN_PROGRESS";
   let attempts = 0;
@@ -291,20 +293,26 @@ async function waitForProcessing(pageToken, creationId) {
 
   while (status !== "FINISHED" && attempts < MAX_ATTEMPTS) {
 
-    const res = await axios.get(
-      `${GRAPH}/${creationId}?fields=status_code&access_token=${pageToken}`
-    );
+    await new Promise(r => setTimeout(r, 5000));
 
-    status = res.data.status_code;
+    try {
+      const res = await axios.get(`${GRAPH}/${creationId}`, {
+        params: { fields: "status_code", access_token: userToken }
+      });
 
-    console.log("Processing status:", status);
+      status = res.data.status_code;
 
-    if (status === "ERROR") {
-      throw new Error("Instagram processing failed");
-    }
+      console.log("Processing status:", status);
 
-    if (status !== "FINISHED") {
-      await new Promise(r => setTimeout(r, 5000));
+      if (status === "ERROR") {
+        throw new Error("Instagram processing failed");
+      }
+    } catch (err) {
+      console.error(
+        "Status poll failed:",
+        JSON.stringify(err.response?.data, null, 2)
+      );
+      throw err;
     }
 
     attempts++;
@@ -330,7 +338,7 @@ async function postReel(videoUrl, caption) {
 
   console.log("Reel container created:", creationId);
 
-  await waitForProcessing(pageToken, creationId);
+  await waitForProcessing(creationId);
 
   console.log("Reel processing complete");
 
